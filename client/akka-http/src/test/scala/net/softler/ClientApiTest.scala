@@ -35,6 +35,18 @@ class ClientApiTest
 
     val errorRequest: ClientRequest[RequestState.Idempotent] =
       rawRequest.uri("http://localhost:9000/error")
+
+    val allRequest: ClientRequest[RequestState.Idempotent] =
+      rawRequest.uri("http://localhost:9000/all")
+
+    val delRequest: ClientRequest[RequestState.Idempotent] =
+      rawRequest.uri("http://localhost:9000/delete")
+
+    val headRequest: ClientRequest[RequestState.Idempotent] =
+      rawRequest.uri("http://localhost:9000/head")
+
+    val optionsRequest: ClientRequest[RequestState.Idempotent] =
+      rawRequest.uri("http://localhost:9000/options")
   }
 
   "The client api" should "handle get requests" in new RequestBuilder {
@@ -87,6 +99,61 @@ class ClientApiTest
     // Check marshalling itself
     whenReady(userResult) { u =>
       u.id shouldBe user.id
+    }
+  }
+
+  it should "handle put requests" in new RequestBuilder {
+    val result: Future[ClientResponse] = allRequest.entity(user.toJson.toString).asJson.put()
+    val userResult: Future[User] = allRequest.entity(user.toJson.toString).asJson.put[User]
+
+    whenReady(result) { r =>
+      r.process shouldBe a[ResponseEntity]
+    }
+
+    whenReady(userResult) { u =>
+      u.id shouldBe user.id
+    }
+  }
+
+  it should "handle patch requests" in new RequestBuilder {
+    val result: Future[ClientResponse] = allRequest.entity(user.toJson.toString).asJson.patch()
+    val userResult: Future[User] = allRequest.entity(user.toJson.toString).asJson.patch[User]
+
+    whenReady(result) { r =>
+      r.process shouldBe a[ResponseEntity]
+    }
+
+    whenReady(userResult) { u =>
+      u.id shouldBe user.id
+    }
+  }
+
+  it should "handle delete requests" in new RequestBuilder {
+    val result: Future[ClientResponse] = delRequest.delete()
+    val userResult: Future[User] = delRequest.delete[User]
+
+    whenReady(result) { r =>
+      r.process shouldBe a[ResponseEntity]
+    }
+
+    whenReady(userResult) { u =>
+      u.id shouldBe user.id
+    }
+  }
+
+  it should "handle head requests" in new RequestBuilder {
+    val result: Future[ClientResponse] = headRequest.head()
+
+    whenReady(result) { r =>
+      r.process shouldBe a[ResponseEntity]
+    }
+  }
+
+  it should "handle options requests" in new RequestBuilder {
+    val result: Future[ClientResponse] = optionsRequest.options()
+
+    whenReady(result) { r =>
+      r.process shouldBe a[ResponseEntity]
     }
   }
 
