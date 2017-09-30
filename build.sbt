@@ -47,7 +47,7 @@ lazy val settings =
   Seq(
     scalaVersion := "2.12.3",
     organization := "net.softler",
-    version := "0.0.1-SNAPSHOT",
+    version := "0.1.0",
     organizationName := "Tobias Frischholz",
     startYear := Some(2017),
     scalacOptions ++= Seq(
