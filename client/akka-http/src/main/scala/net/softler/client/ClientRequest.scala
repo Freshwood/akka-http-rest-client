@@ -6,6 +6,7 @@ import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.Accept
 import akka.http.scaladsl.unmarshalling.{Unmarshal, Unmarshaller}
 import akka.stream.Materializer
+import net.softler.client.RequestState.RequestIsIdempotent
 import net.softler.processor.ResponseProcessor
 
 import scala.annotation.implicitNotFound
@@ -42,16 +43,17 @@ sealed trait AkkaHttpRequest {
   def request: HttpRequest
 }
 
-/**
-  * The http methods implementation which can be mixed in
-  */
-sealed trait Methods[R <: RequestState] extends AkkaHttpRequest {
+sealed trait IdempotentMethods[R <: RequestState] extends AkkaHttpRequest {
 
   import RequestState._
 
+  private def delRequest: HttpRequest = request.copy(method = HttpMethods.DELETE)
+
   private def getRequest: HttpRequest = request.copy(method = HttpMethods.GET)
 
-  private def postRequest: HttpRequest = request.copy(method = HttpMethods.POST)
+  private def headRequest: HttpRequest = request.copy(method = HttpMethods.HEAD)
+
+  private def optRequest: HttpRequest = request.copy(method = HttpMethods.OPTIONS)
 
   def get()(implicit evidence: RequestIsIdempotent[R],
             system: ActorSystem,
@@ -69,6 +71,65 @@ sealed trait Methods[R <: RequestState] extends AkkaHttpRequest {
     Http().singleRequest(getRequest)
   )
 
+  def delete()(implicit evidence: RequestIsIdempotent[R],
+               system: ActorSystem,
+               materializer: Materializer,
+               executionContext: ExecutionContext): Future[ClientResponse] = ClientResponse(
+    Http().singleRequest(delRequest)
+  )
+
+  def delete[A](implicit evidence: RequestIsIdempotent[R],
+                system: ActorSystem,
+                materializer: Materializer,
+                executionContext: ExecutionContext,
+                um: Unmarshaller[ResponseEntity, A],
+                processor: ResponseProcessor): Future[A] = ClientResponse.as[A](
+    Http().singleRequest(delRequest)
+  )
+
+  def head()(implicit evidence: RequestIsIdempotent[R],
+             system: ActorSystem,
+             materializer: Materializer,
+             executionContext: ExecutionContext): Future[ClientResponse] = ClientResponse(
+    Http().singleRequest(headRequest)
+  )
+
+  def head[A](implicit evidence: RequestIsIdempotent[R],
+              system: ActorSystem,
+              materializer: Materializer,
+              executionContext: ExecutionContext,
+              um: Unmarshaller[ResponseEntity, A],
+              processor: ResponseProcessor): Future[A] = ClientResponse.as[A](
+    Http().singleRequest(headRequest)
+  )
+
+  def options()(implicit evidence: RequestIsIdempotent[R],
+                system: ActorSystem,
+                materializer: Materializer,
+                executionContext: ExecutionContext): Future[ClientResponse] = ClientResponse(
+    Http().singleRequest(optRequest)
+  )
+
+  def options[A](implicit evidence: RequestIsIdempotent[R],
+                 system: ActorSystem,
+                 materializer: Materializer,
+                 executionContext: ExecutionContext,
+                 um: Unmarshaller[ResponseEntity, A],
+                 processor: ResponseProcessor): Future[A] = ClientResponse.as[A](
+    Http().singleRequest(optRequest)
+  )
+}
+
+sealed trait UnsafeMethods[R <: RequestState] extends AkkaHttpRequest {
+
+  import RequestState._
+
+  private def postRequest: HttpRequest = request.copy(method = HttpMethods.POST)
+
+  private def putRequest: HttpRequest = request.copy(method = HttpMethods.PUT)
+
+  private def patchRequest: HttpRequest = request.copy(method = HttpMethods.PATCH)
+
   def post()(implicit evidence: RequestWithEntity[R],
              system: ActorSystem,
              materializer: Materializer,
@@ -83,7 +144,42 @@ sealed trait Methods[R <: RequestState] extends AkkaHttpRequest {
               processor: ResponseProcessor): Future[A] = ClientResponse.as[A](
     Http().singleRequest(postRequest)
   )
+
+  def put()(implicit evidence: RequestWithEntity[R],
+            system: ActorSystem,
+            materializer: Materializer,
+            executionContext: ExecutionContext): Future[ClientResponse] =
+    ClientResponse(Http().singleRequest(putRequest))
+
+  def put[A](implicit evidence: RequestWithEntity[R],
+             system: ActorSystem,
+             materializer: Materializer,
+             executionContext: ExecutionContext,
+             um: Unmarshaller[ResponseEntity, A],
+             processor: ResponseProcessor): Future[A] = ClientResponse.as[A](
+    Http().singleRequest(putRequest)
+  )
+
+  def patch()(implicit evidence: RequestWithEntity[R],
+              system: ActorSystem,
+              materializer: Materializer,
+              executionContext: ExecutionContext): Future[ClientResponse] =
+    ClientResponse(Http().singleRequest(patchRequest))
+
+  def patch[A](implicit evidence: RequestWithEntity[R],
+               system: ActorSystem,
+               materializer: Materializer,
+               executionContext: ExecutionContext,
+               um: Unmarshaller[ResponseEntity, A],
+               processor: ResponseProcessor): Future[A] = ClientResponse.as[A](
+    Http().singleRequest(patchRequest)
+  )
 }
+
+/**
+  * The http methods implementation which can be mixed in
+  */
+sealed trait Methods[R <: RequestState] extends IdempotentMethods[R] with UnsafeMethods[R]
 
 /**
   * The request accept headers for easy adding accept headers
