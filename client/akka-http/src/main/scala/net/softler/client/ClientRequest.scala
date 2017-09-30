@@ -91,6 +91,15 @@ sealed trait Methods[R <: RequestState] extends AkkaHttpRequest {
 sealed trait AcceptHeaders[R <: RequestState] extends AkkaHttpRequest {
   def withJson: ClientRequest[RequestState.Idempotent] =
     ClientRequest(request.addHeader(Accept(MediaTypes.`application/json`)))
+
+  def withText: ClientRequest[RequestState.Idempotent] =
+    ClientRequest(request.addHeader(Accept(MediaTypes.`text/plain`)))
+
+  def withXml: ClientRequest[RequestState.Idempotent] =
+    ClientRequest(request.addHeader(Accept(MediaTypes.`text/xml`)))
+
+  def withBinary: ClientRequest[RequestState.Idempotent] =
+    ClientRequest(request.addHeader(Accept(MediaTypes.`application/octet-stream`)))
 }
 
 /**
@@ -108,13 +117,43 @@ sealed trait EntitySupport[R <: RequestState] extends AkkaHttpRequest {
 
   /**
     * Set the content type as [[ContentTypes.`application/json`]]
-    * Make sure we have an entity first otherwise it gets overwritten
+    * Make sure we have an entity first otherwise this header gets overwritten
     */
   def asJson(implicit ev: RequestWithEntity[R]): ClientRequest[RequestState.EntityAcceptance] =
     ClientRequest {
       request
         .copy(entity = request.entity.withContentType(ContentTypes.`application/json`))
         .addHeader(Accept(MediaRange(MediaTypes.`application/json`)))
+    }
+
+  /**
+    * Set the content type as [[ContentTypes.`text/plain(UTF-8)`]]
+    */
+  def asText(implicit ev: RequestWithEntity[R]): ClientRequest[RequestState.EntityAcceptance] =
+    ClientRequest {
+      request
+        .copy(entity = request.entity.withContentType(ContentTypes.`text/plain(UTF-8)`))
+        .addHeader(Accept(MediaRange(MediaTypes.`text/plain`)))
+    }
+
+  /**
+    * Set the content type as [[ContentTypes.`text/xml(UTF-8)`]]
+    */
+  def asXml(implicit ev: RequestWithEntity[R]): ClientRequest[RequestState.EntityAcceptance] =
+    ClientRequest {
+      request
+        .copy(entity = request.entity.withContentType(ContentTypes.`text/xml(UTF-8)`))
+        .addHeader(Accept(MediaRange(MediaTypes.`text/xml`)))
+    }
+
+  /**
+    * Set the content type as [[ContentTypes.`application/octet-stream`]]
+    */
+  def asBinary(implicit ev: RequestWithEntity[R]): ClientRequest[RequestState.EntityAcceptance] =
+    ClientRequest {
+      request
+        .copy(entity = request.entity.withContentType(ContentTypes.`application/octet-stream`))
+        .addHeader(Accept(MediaRange(MediaTypes.`application/octet-stream`)))
     }
 }
 

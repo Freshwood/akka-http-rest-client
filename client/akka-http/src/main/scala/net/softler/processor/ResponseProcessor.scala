@@ -90,7 +90,7 @@ object ResponseProcessor {
     /**
       * Redirect handler (e.g. Redirect...) override this when you want to match your own redirection logic
       */
-    override def redirect(implicit materializer: Materializer): DefaultProcessor.ResponseHandler = {
+    override def redirect(implicit materializer: Materializer): ResponseHandler = {
       case r @ HttpResponse(status: StatusCodes.Redirection, _, entity, _) =>
         r.discardEntityBytes()
         throw RedirectionErrorRestException(
@@ -101,7 +101,7 @@ object ResponseProcessor {
     /**
       * Custom status code handler override this when you want to match your own custom codes
       */
-    override def default(implicit materializer: Materializer): DefaultProcessor.ResponseHandler = {
+    override def default(implicit materializer: Materializer): ResponseHandler = {
       case r @ HttpResponse(status, _, entity, _) =>
         r.discardEntityBytes()
         throw CustomRestException(
