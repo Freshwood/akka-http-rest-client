@@ -7,7 +7,7 @@ import net.softler.exception.{ClientErrorRestException, ServerErrorRestException
 import net.softler.marshalling.Models.User
 import net.softler.server.HttpServer
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{BeforeAndAfterAll, FlatSpec, Matchers}
+import org.scalatest.{Assertion, BeforeAndAfterAll, FlatSpec, Matchers}
 import spray.json._
 
 import scala.concurrent.Future
@@ -57,13 +57,9 @@ class ClientApiTest
 
     val errorResult: Future[User] = errorRequest.get[User]
 
-    whenReady(result) { r =>
-      r.status shouldBe StatusCodes.OK
-    }
+    assertResult(result)
 
-    whenReady(resultWithEntity) { r =>
-      r.id shouldBe user.id
-    }
+    assertUserResult(resultWithEntity)
 
     whenReady(errorResult.failed) { e =>
       e shouldBe a[ServerErrorRestException]
@@ -97,65 +93,59 @@ class ClientApiTest
     }
 
     // Check marshalling itself
-    whenReady(userResult) { u =>
-      u.id shouldBe user.id
-    }
+    assertUserResult(userResult)
   }
 
   it should "handle put requests" in new RequestBuilder {
     val result: Future[ClientResponse] = allRequest.entity(user.toJson.toString).asJson.put()
     val userResult: Future[User] = allRequest.entity(user.toJson.toString).asJson.put[User]
 
-    whenReady(result) { r =>
-      r.process shouldBe a[ResponseEntity]
-    }
+    assertResult(result)
 
-    whenReady(userResult) { u =>
-      u.id shouldBe user.id
-    }
+    assertUserResult(userResult)
   }
 
   it should "handle patch requests" in new RequestBuilder {
     val result: Future[ClientResponse] = allRequest.entity(user.toJson.toString).asJson.patch()
     val userResult: Future[User] = allRequest.entity(user.toJson.toString).asJson.patch[User]
 
-    whenReady(result) { r =>
-      r.process shouldBe a[ResponseEntity]
-    }
+    assertResult(result)
 
-    whenReady(userResult) { u =>
-      u.id shouldBe user.id
-    }
+    assertUserResult(userResult)
   }
 
   it should "handle delete requests" in new RequestBuilder {
     val result: Future[ClientResponse] = delRequest.delete()
     val userResult: Future[User] = delRequest.delete[User]
 
-    whenReady(result) { r =>
-      r.process shouldBe a[ResponseEntity]
-    }
+    assertResult(result)
 
-    whenReady(userResult) { u =>
-      u.id shouldBe user.id
-    }
+    assertUserResult(userResult)
   }
 
   it should "handle head requests" in new RequestBuilder {
     val result: Future[ClientResponse] = headRequest.head()
 
-    whenReady(result) { r =>
-      r.process shouldBe a[ResponseEntity]
-    }
+    assertResult(result)
   }
 
   it should "handle options requests" in new RequestBuilder {
     val result: Future[ClientResponse] = optionsRequest.options()
 
+    assertResult(result)
+  }
+
+  private def assertResult(result: Future[ClientResponse]): Assertion =
     whenReady(result) { r =>
       r.process shouldBe a[ResponseEntity]
     }
-  }
+
+  private def assertUserResult(result: Future[User]): Assertion =
+    whenReady(result) { u =>
+      u.id shouldBe user.id
+      u.name shouldBe user.name
+      u.email shouldBe user.email
+    }
 
   override def afterAll(): Unit = {
     system.terminate()
