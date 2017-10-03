@@ -17,7 +17,8 @@ lazy val root = (project in file("."))
   .settings(settings)
   .settings(
     name := "akka-http-client-project",
-    aggregate in update := false
+    aggregate in update := false,
+    publishArtifact := false
   )
   .aggregate(`akka-http-rest-client`)
 
@@ -43,13 +44,16 @@ lazy val library =
 // Settings
 // *****************************************************************************
 
-lazy val settings =
+lazy val settings = projectSettings ++ publishSettings
+
+lazy val projectSettings =
   Seq(
     scalaVersion := "2.12.3",
     organization := "net.softler",
     version := "0.1.0",
     organizationName := "Tobias Frischholz",
     startYear := Some(2017),
+    licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
     scalacOptions ++= Seq(
       "-deprecation",
       "-encoding",
@@ -63,4 +67,18 @@ lazy val settings =
       "-Xfuture"
     ),
     sources in (Compile, doc) := Seq.empty
+  )
+
+
+lazy val publishSettings =
+  Seq(
+    homepage := Some(url("https://github.com/Freshwood/akka-http-rest-client")),
+    scmInfo := Some(ScmInfo(url("https://github.com/Freshwood/akka-http-rest-client"),
+      "git@github.com:Freshwood/akka-http-rest-client.git")),
+    developers += Developer("freshwood",
+      "Tobias Frischholz",
+      "tfrischholz@kabelmail.de",
+      url("https://github.com/freshwood")),
+    pomIncludeRepository := (_ => false),
+    bintrayPackage := "akka-http-rest-client"
   )
