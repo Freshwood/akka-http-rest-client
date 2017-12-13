@@ -47,6 +47,9 @@ class ClientApiTest
 
     val optionsRequest: ClientRequest[RequestState.Idempotent] =
       rawRequest.uri("http://localhost:9000/options")
+
+    val encodedRequest: ClientRequest[RequestState.Idempotent] =
+      rawRequest.uri("http://localhost:9000/encoded")
   }
 
   "The client api" should "handle get requests" in new RequestBuilder {
@@ -133,6 +136,26 @@ class ClientApiTest
     val result: Future[ClientResponse] = optionsRequest.options()
 
     assertResult(result)
+  }
+
+  it should "not could handle encoded responses without encoder" in new RequestBuilder {
+    val result: Future[ClientResponse] = encodedRequest.withText.get()
+
+    assertResult(result)
+
+    whenReady(result.flatMap(_.as[String])) { r =>
+      r shouldNot be("Hello World")
+    }
+  }
+
+  it should "decode a response" in new RequestBuilder {
+    val result: Future[ClientResponse] = encodedRequest.withText.get()
+
+    assertResult(result)
+
+    whenReady(result.map(_.decode).flatMap(_.as[String])) { r =>
+      r shouldBe "Hello World"
+    }
   }
 
   private def assertResult(result: Future[ClientResponse]): Assertion =

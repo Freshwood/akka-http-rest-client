@@ -2,7 +2,9 @@ package net.softler.server
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
+import akka.http.scaladsl.coding.{Deflate, Encoder, Gzip}
 import akka.http.scaladsl.model.HttpMethods._
+import akka.http.scaladsl.model.TransferEncodings.{deflate, gzip}
 import akka.http.scaladsl.model.headers.`Access-Control-Allow-Methods`
 import akka.http.scaladsl.model.{ContentTypes, HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.Route
@@ -58,6 +60,10 @@ trait HttpServer extends JsonSupport with Models {
         HttpResponse(200).withHeaders(
           `Access-Control-Allow-Methods`(OPTIONS, POST, PUT, GET, DELETE, HEAD, PATCH)
         ))
+    }
+  } ~ path("encoded") {
+    encodeResponseWith(Gzip, Deflate) {
+      complete("Hello World")
     }
   }
 

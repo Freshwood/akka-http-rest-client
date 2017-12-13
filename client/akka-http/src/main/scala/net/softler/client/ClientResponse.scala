@@ -1,6 +1,8 @@
 package net.softler.client
 
+import akka.http.scaladsl.coding._
 import akka.http.scaladsl.model._
+import akka.http.scaladsl.model.headers.HttpEncodings
 import akka.http.scaladsl.unmarshalling.{Unmarshal, Unmarshaller}
 import akka.stream.Materializer
 import net.softler.processor.ResponseProcessor
@@ -15,9 +17,11 @@ import scala.language.implicitConversions
   * Or you can process the response with a [[ResponseProcessor]]
   * As default the default [[ResponseProcessor]] will be used
   */
-case class ClientResponse(response: HttpResponse) {
+case class ClientResponse(response: HttpResponse) { self =>
 
   implicit val fallbackProcessor: ResponseProcessor = ResponseProcessor.DefaultProcessor
+
+  private val decoder: HttpResponse => HttpResponse = ClientResponse.decodeResponse
 
   def protocol: HttpProtocol = response.protocol
 
@@ -26,6 +30,13 @@ case class ClientResponse(response: HttpResponse) {
   def status: StatusCode = response.status
 
   def raw: ResponseEntity = response.entity
+
+  def decoded: HttpResponse = decoder(response)
+
+  /**
+    * Decodes the given response with the well known encoding mechanism
+    */
+  def decode: ClientResponse = ClientResponse(decoder(self.response))
 
   /**
     * Process the [[HttpResponse]] with implicit response processor
@@ -59,7 +70,7 @@ object ClientResponse {
 
   /**
     * Applies a future http response to a future of type [[A]]
-    * The response will be processed with given [[ResponseProcessor]]
+    * The response will be processed with the given [[ResponseProcessor]]
     * With the response entity as result the given un marshaller will be applied
     */
   def as[A](response: Future[HttpResponse])(implicit processor: ResponseProcessor,
@@ -69,4 +80,13 @@ object ClientResponse {
     response flatMap { rawResult =>
       Unmarshal(processor.process(rawResult)).to[A]
     }
+
+  def decodeResponse(response: HttpResponse): HttpResponse = response.encoding match {
+    case HttpEncodings.gzip ⇒
+      Gzip.decodeMessage(response)
+    case HttpEncodings.deflate ⇒
+      Deflate.decodeMessage(response)
+    case _ ⇒
+      NoCoding.decodeMessage(response)
+  }
 }
