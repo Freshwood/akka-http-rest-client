@@ -50,7 +50,7 @@ lazy val projectSettings =
   Seq(
     scalaVersion := "2.12.3",
     organization := "net.softler",
-    version := "0.1.0",
+    version := "0.1.1",
     organizationName := "Tobias Frischholz",
     startYear := Some(2017),
     licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
