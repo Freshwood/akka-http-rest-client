@@ -21,7 +21,7 @@ The goal is to have an easy to use REST client, which can be used in almost any 
 resolvers += Resolver.bintrayRepo("freshwood", "maven")
 
 libraryDependencies ++= List(
-  "net.softler" %% "akka-http-rest-client" % "0.1.0"
+  "net.softler" %% "akka-http-rest-client" % "0.1.1"
 )
 ```
 
@@ -45,6 +45,18 @@ val processed: Future[ResponseEntity] = result map(_.process)
 val original: Future[HttpResponse] = result.map(_.response)
 
 ```
+
+### Handle (Gzip, Deflate) responses
+
+```scala
+// Just a request on a API with GZIP responses
+val result: Future[ClientResponse] = encodedRequest.withText.get()
+
+// Just map over the entire response an encoder to get your desired object 
+val string = result.map(_.decode).flatMap(_.as[String])
+
+```
+
 ## Contribution ##
 
 It would be a pleasure to see a nice contribution.
@@ -53,4 +65,4 @@ Or you add an issue with an corresponding PR.
 
 ## License ##
 
-This code is open source software licensed under the MIC License
+This code is open source software licensed under the MIT License
