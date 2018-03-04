@@ -54,6 +54,7 @@ lazy val projectSettings =
     organizationName := "Tobias Frischholz",
     startYear := Some(2017),
     licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
+	javacOptions ++= Seq("-source", "1.8"),
     scalacOptions ++= Seq(
       "-deprecation",
       "-encoding",
