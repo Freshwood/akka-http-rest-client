@@ -27,6 +27,7 @@ class ClientApiTest
 
   trait RequestBuilder {
     private val rawRequest = ClientRequest().withJson
+
     val testRequest: ClientRequest[RequestState.Idempotent] =
       rawRequest.uri("http://localhost:9000/test")
 
@@ -79,6 +80,9 @@ class ClientApiTest
 
     val userResult: Future[User] = postRequest.asJson.post[User]
 
+    val postRequestFromScratch: ClientRequest[RequestState.EntityAcceptance] =
+      ClientRequest().uri("http://localhost:9000/post").withJson.entity(user.toJson.toString)
+
     whenReady(errorResult) { r =>
       r.status shouldBe StatusCodes.MethodNotAllowed
     }
@@ -94,6 +98,9 @@ class ClientApiTest
         userResult.id shouldBe user.id
       }
     }
+
+    // Just a sample which we can see how we can create a request ~> response from scratch
+    postRequestFromScratch.asJson.post[User].futureValue shouldBe user
 
     // Check marshalling itself
     assertUserResult(userResult)
