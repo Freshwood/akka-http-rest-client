@@ -2,6 +2,7 @@ package net.softler
 
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.unmarshalling.Unmarshal
+import akka.util.ByteString
 import net.softler.client.{ClientRequest, ClientResponse, RequestState}
 import net.softler.exception.{ClientErrorRestException, ServerErrorRestException}
 import net.softler.marshalling.Models.User
@@ -101,6 +102,7 @@ class ClientApiTest
 
     // Just a sample which we can see how we can create a request ~> response from scratch
     postRequestFromScratch.asJson.post[User].futureValue shouldBe user
+    postRequestFromScratch.asJson.post[ByteString].futureValue shouldNot be(empty)
 
     // Check marshalling itself
     assertUserResult(userResult)
