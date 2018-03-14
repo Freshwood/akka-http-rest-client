@@ -1,7 +1,6 @@
 // *****************************************************************************
 // Projects
 // *****************************************************************************
-
 lazy val `akka-http-rest-client` =
   (project in file("client/akka-http"))
     .settings(settings)
@@ -26,7 +25,6 @@ lazy val root = (project in file("."))
 // *****************************************************************************
 // Library dependencies
 // *****************************************************************************
-
 lazy val library =
   new {
 
@@ -43,7 +41,6 @@ lazy val library =
 // *****************************************************************************
 // Settings
 // *****************************************************************************
-
 lazy val settings = projectSettings ++ publishSettings
 
 lazy val projectSettings =
@@ -69,7 +66,6 @@ lazy val projectSettings =
     ),
     sources in (Compile, doc) := Seq.empty
   )
-
 
 lazy val publishSettings =
   Seq(
