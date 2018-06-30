@@ -25,6 +25,14 @@ libraryDependencies ++= List(
 )
 ```
 
+(ammonite)
+
+```scala
+interp.repositories() ++= Seq(coursier.MavenRepository("https://dl.bintray.com/freshwood/maven/"))
+
+import $ivy.`net.softler::akka-http-rest-client:0.1.1`
+```
+
 ## Usage
 
 Simple as hell
