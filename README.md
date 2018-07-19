@@ -13,6 +13,7 @@ The goal is to have an easy to use REST client, which can be used in almost any 
 - Default response processor support
 - Functionality to un marshall responses with a given un marshaller (less code for you)
 - Development was focused on JSON support
+- Compression support for deflate / gzip responses
 
 ## Installation
 
@@ -21,7 +22,7 @@ The goal is to have an easy to use REST client, which can be used in almost any 
 resolvers += Resolver.bintrayRepo("freshwood", "maven")
 
 libraryDependencies ++= List(
-  "net.softler" %% "akka-http-rest-client" % "0.1.1"
+  "net.softler" %% "akka-http-rest-client" % "0.2.0"
 )
 ```
 
@@ -30,7 +31,7 @@ libraryDependencies ++= List(
 ```scala
 interp.repositories() ++= Seq(coursier.MavenRepository("https://dl.bintray.com/freshwood/maven/"))
 
-import $ivy.`net.softler::akka-http-rest-client:0.1.1`
+import $ivy.`net.softler::akka-http-rest-client:0.2.0`
 ```
 
 ## Usage
