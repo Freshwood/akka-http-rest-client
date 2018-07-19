@@ -1,7 +1,6 @@
 // *****************************************************************************
 // Projects
 // *****************************************************************************
-
 lazy val `akka-http-rest-client` =
   (project in file("client/akka-http"))
     .settings(settings)
@@ -26,12 +25,11 @@ lazy val root = (project in file("."))
 // *****************************************************************************
 // Library dependencies
 // *****************************************************************************
-
 lazy val library =
   new {
 
     object Version {
-      val akkaHttp = "10.0.10"
+      val akkaHttp = "10.0.11"
       val scalaTest = "3.0.4"
     }
 
@@ -43,14 +41,13 @@ lazy val library =
 // *****************************************************************************
 // Settings
 // *****************************************************************************
-
 lazy val settings = projectSettings ++ publishSettings
 
 lazy val projectSettings =
   Seq(
-    scalaVersion := "2.12.3",
+    scalaVersion := "2.12.4",
     organization := "net.softler",
-    version := "0.1.1",
+    version := "0.2.0",
     organizationName := "Tobias Frischholz",
     startYear := Some(2017),
     licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
@@ -69,7 +66,6 @@ lazy val projectSettings =
     ),
     sources in (Compile, doc) := Seq.empty
   )
-
 
 lazy val publishSettings =
   Seq(

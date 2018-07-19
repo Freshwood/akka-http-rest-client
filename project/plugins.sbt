@@ -1,3 +1,3 @@
-addSbtPlugin("com.geirsson" %% "sbt-scalafmt" % "0.4.3")
+addSbtPlugin("com.lucidchart" % "sbt-scalafmt" % "1.10")
 
 addSbtPlugin("org.foundweekends" % "sbt-bintray" % "0.5.1")
