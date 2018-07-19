@@ -6,7 +6,6 @@ import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.Accept
 import akka.http.scaladsl.unmarshalling.{Unmarshal, Unmarshaller}
 import akka.stream.Materializer
-import net.softler.client.RequestState.RequestIsIdempotent
 import net.softler.processor.ResponseProcessor
 
 import scala.annotation.implicitNotFound
@@ -47,13 +46,13 @@ sealed trait IdempotentMethods[R <: RequestState] extends AkkaHttpRequest {
 
   import RequestState._
 
-  private def delRequest: HttpRequest = request.copy(method = HttpMethods.DELETE)
+  private def deletingRequest: HttpRequest = request.copy(method = HttpMethods.DELETE)
 
   private def getRequest: HttpRequest = request.copy(method = HttpMethods.GET)
 
   private def headRequest: HttpRequest = request.copy(method = HttpMethods.HEAD)
 
-  private def optRequest: HttpRequest = request.copy(method = HttpMethods.OPTIONS)
+  private def optionRequest: HttpRequest = request.copy(method = HttpMethods.OPTIONS)
 
   def get()(implicit evidence: RequestIsIdempotent[R],
             system: ActorSystem,
@@ -75,7 +74,7 @@ sealed trait IdempotentMethods[R <: RequestState] extends AkkaHttpRequest {
                system: ActorSystem,
                materializer: Materializer,
                executionContext: ExecutionContext): Future[ClientResponse] = ClientResponse(
-    Http().singleRequest(delRequest)
+    Http().singleRequest(deletingRequest)
   )
 
   def delete[A](implicit evidence: RequestIsIdempotent[R],
@@ -84,7 +83,7 @@ sealed trait IdempotentMethods[R <: RequestState] extends AkkaHttpRequest {
                 executionContext: ExecutionContext,
                 um: Unmarshaller[ResponseEntity, A],
                 processor: ResponseProcessor): Future[A] = ClientResponse.as[A](
-    Http().singleRequest(delRequest)
+    Http().singleRequest(deletingRequest)
   )
 
   def head()(implicit evidence: RequestIsIdempotent[R],
@@ -107,7 +106,7 @@ sealed trait IdempotentMethods[R <: RequestState] extends AkkaHttpRequest {
                 system: ActorSystem,
                 materializer: Materializer,
                 executionContext: ExecutionContext): Future[ClientResponse] = ClientResponse(
-    Http().singleRequest(optRequest)
+    Http().singleRequest(optionRequest)
   )
 
   def options[A](implicit evidence: RequestIsIdempotent[R],
@@ -116,7 +115,7 @@ sealed trait IdempotentMethods[R <: RequestState] extends AkkaHttpRequest {
                  executionContext: ExecutionContext,
                  um: Unmarshaller[ResponseEntity, A],
                  processor: ResponseProcessor): Future[A] = ClientResponse.as[A](
-    Http().singleRequest(optRequest)
+    Http().singleRequest(optionRequest)
   )
 }
 
