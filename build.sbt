@@ -12,6 +12,17 @@ lazy val `akka-http-rest-client` =
       )
     )
 
+lazy val `akka-http-rest-client-sample` =
+  (project in file("sample/client"))
+    .settings(settings)
+    .settings(
+      libraryDependencies ++= Seq(
+        library.akkaHttp,
+        library.sprayJson
+      ),
+      publishArtifact := false
+    ).dependsOn(`akka-http-rest-client`)
+
 lazy val root = (project in file("."))
   .settings(settings)
   .settings(
@@ -19,7 +30,7 @@ lazy val root = (project in file("."))
     aggregate in update := false,
     publishArtifact := false
   )
-  .aggregate(`akka-http-rest-client`)
+  .aggregate(`akka-http-rest-client`, `akka-http-rest-client-sample`)
 
 
 // *****************************************************************************
