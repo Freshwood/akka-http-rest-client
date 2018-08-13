@@ -18,6 +18,9 @@ lazy val `akka-http-rest-client-sample` =
     .settings(
       libraryDependencies ++= Seq(
         library.akkaHttp,
+        library.circe,
+        library.circeGeneric,
+        library.circeAkkaHttp,
         library.sprayJson
       ),
       publishArtifact := false
@@ -42,10 +45,15 @@ lazy val library =
     object Version {
       val akkaHttp = "10.0.11"
       val scalaTest = "3.0.4"
+      val circe = "0.9.3"
+      val circeAkkaHttp = "1.21.0"
     }
 
     val akkaHttp = "com.typesafe.akka" %% "akka-http" % Version.akkaHttp
     val sprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % Version.akkaHttp
+    val circeAkkaHttp = "de.heikoseeberger" %% "akka-http-circe" % Version.circeAkkaHttp
+    val circe = "io.circe" %% "circe-core" % Version.circe
+    val circeGeneric = "io.circe" %% "circe-generic" % Version.circe
     val scalaTest = "org.scalatest" %% "scalatest" % Version.scalaTest
   }
 
