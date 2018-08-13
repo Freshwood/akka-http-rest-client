@@ -2,7 +2,7 @@ package net.softler.marshalling
 
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import net.softler.marshalling.Models.User
-import spray.json.{ DefaultJsonProtocol, JsonWriter, RootJsonFormat }
+import spray.json.{DefaultJsonProtocol, RootJsonFormat}
 
 trait Models {
   def user: User = User(1, "Name", "test@test.de")
