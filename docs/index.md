@@ -1,10 +1,3 @@
----
-layout: page
-title: Akka http rest client
-tagline: A simple to use akka http based rest client
-description: A simple to use akka http based rest client
----
-
 # Akka http rest client
 
 ## Motivation

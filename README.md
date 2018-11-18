@@ -15,6 +15,9 @@ The goal is to have an easy to use REST client, which can be used in almost any 
 - Development was focused on JSON support
 - Compression support for deflate / gzip responses
 
+## Documentation
+https://freshwood.github.io/akka-http-rest-client/
+
 ## Installation
 
 ``` scala
