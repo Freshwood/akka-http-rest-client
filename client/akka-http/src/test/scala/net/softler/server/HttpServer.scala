@@ -2,17 +2,17 @@ package net.softler.server
 
 import akka.actor.ActorSystem
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.coding.{Deflate, Encoder, Gzip}
+import akka.http.scaladsl.coding.{Deflate, Gzip}
 import akka.http.scaladsl.model.HttpMethods._
-import akka.http.scaladsl.model.TransferEncodings.{deflate, gzip}
 import akka.http.scaladsl.model.headers.`Access-Control-Allow-Methods`
-import akka.http.scaladsl.model.{ContentTypes, HttpResponse, StatusCodes}
+import akka.http.scaladsl.model.{HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.Route
-import akka.stream.ActorMaterializer
+import akka.stream.{ActorMaterializer, Materializer}
 import net.softler.marshalling.Models.User
 import net.softler.marshalling.{JsonSupport, Models}
 
-import scala.concurrent.{ExecutionContextExecutor, Future}
+import scala.concurrent.ExecutionContext
+import scala.util.{Failure, Success}
 
 trait HttpServer extends JsonSupport with Models {
 
@@ -22,9 +22,9 @@ trait HttpServer extends JsonSupport with Models {
 
   implicit val system: ActorSystem = ActorSystem("test-actor-system")
 
-  implicit val materializer: ActorMaterializer = ActorMaterializer()
+  implicit val materializer: Materializer = ActorMaterializer()
 
-  implicit val executionContext: ExecutionContextExecutor = system.dispatcher
+  implicit val executionContext: ExecutionContext = system.dispatcher
 
   lazy val routes: Route = path("test") {
     pathEndOrSingleSlash {
@@ -67,5 +67,8 @@ trait HttpServer extends JsonSupport with Models {
     }
   }
 
-  val server: Future[Http.ServerBinding] = Http().bindAndHandle(routes, "localhost", port)
+  Http().bindAndHandle(routes, "localhost", port) onComplete {
+    case Success(_) => println(s"Test http service successfully bound to port $port")
+    case Failure(_) => println(s"Test http service could not be bound to port $port")
+  }
 }

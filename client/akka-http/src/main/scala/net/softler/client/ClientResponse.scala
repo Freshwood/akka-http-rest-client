@@ -76,7 +76,7 @@ object ClientResponse {
   def as[A](response: Future[HttpResponse])(implicit processor: ResponseProcessor,
                                             um: Unmarshaller[ResponseEntity, A],
                                             materializer: Materializer,
-                                            executionContext: ExecutionContext): Future[A] =
+                                            ec: ExecutionContext): Future[A] =
     response flatMap { rawResult =>
       Unmarshal(processor.process(rawResult)).to[A]
     }
