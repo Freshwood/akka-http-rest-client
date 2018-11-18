@@ -64,9 +64,9 @@ lazy val settings = projectSettings ++ publishSettings
 
 lazy val projectSettings =
   Seq(
-    scalaVersion := "2.12.4",
+    scalaVersion := "2.12.7",
     organization := "net.softler",
-    version := "0.2.0",
+    version := "0.2.1",
     organizationName := "Tobias Frischholz",
     startYear := Some(2017),
     licenses += ("MIT", url("http://opensource.org/licenses/MIT")),
