@@ -6,6 +6,8 @@ lazy val `akka-http-rest-client` =
     .settings(settings)
     .settings(
       libraryDependencies ++= Seq(
+        library.akka,
+        library.akkaStream,
         library.akkaHttp,
         library.sprayJson % Test,
         library.scalaTest % Test
@@ -43,12 +45,16 @@ lazy val library =
   new {
 
     object Version {
-      val akkaHttp = "10.0.11"
+      val akka = "2.6.0"
+      val akkaStream = "2.6.0"
+      val akkaHttp = "10.1.10"
       val scalaTest = "3.0.4"
-      val circe = "0.9.3"
+      val circe = "0.11.2"
       val circeAkkaHttp = "1.21.0"
     }
 
+    val akka = "com.typesafe.akka" %% "akka-actor" % Version.akka
+    val akkaStream = "com.typesafe.akka" %% "akka-stream" % Version.akkaStream
     val akkaHttp = "com.typesafe.akka" %% "akka-http" % Version.akkaHttp
     val sprayJson = "com.typesafe.akka" %% "akka-http-spray-json" % Version.akkaHttp
     val circeAkkaHttp = "de.heikoseeberger" %% "akka-http-circe" % Version.circeAkkaHttp
@@ -64,7 +70,7 @@ lazy val settings = projectSettings ++ publishSettings
 
 lazy val projectSettings =
   Seq(
-    scalaVersion := "2.12.7",
+    scalaVersion := "2.12.10",
     organization := "net.softler",
     version := "0.2.1",
     organizationName := "Tobias Frischholz",

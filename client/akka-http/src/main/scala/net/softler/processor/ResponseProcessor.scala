@@ -1,7 +1,7 @@
 package net.softler.processor
 
+import akka.actor.ActorSystem
 import akka.http.scaladsl.model.{HttpResponse, ResponseEntity, StatusCodes}
-import akka.stream.Materializer
 import net.softler.exception._
 
 /**
@@ -17,39 +17,40 @@ trait ResponseProcessor {
   /**
     * Success handler override this when you want to match only a single status
     */
-  def success(implicit materializer: Materializer): ResponseHandler
+  def success(implicit as: ActorSystem): ResponseHandler
 
   /**
     * Client error handler (e.g. Bad Request) override this when you want to match only a single status
     */
-  def clientError(implicit materializer: Materializer): ResponseHandler
+  def clientError(implicit as: ActorSystem): ResponseHandler
 
   /**
     * Error handler (e.g. Internal Server error) override this when you want to match only a single status
     */
-  def error(implicit materializer: Materializer): ResponseHandler
+  def error(implicit as: ActorSystem): ResponseHandler
 
   /**
     * Informational handler (e.g. Continue...) override this when you want to match only a single status
     */
-  def informational(implicit materializer: Materializer): ResponseHandler
+  def informational(implicit as: ActorSystem): ResponseHandler
 
   /**
     * Redirect handler (e.g. Redirect...) override this when you want to match your own redirection logic
     */
-  def redirect(implicit materializer: Materializer): ResponseHandler
+  def redirect(implicit as: ActorSystem): ResponseHandler
 
   /**
     * Default response handler override this when you want to match your own custom codes
     */
-  def default(implicit materializer: Materializer): ResponseHandler
+  def default(implicit as:ActorSystem): ResponseHandler
 
   /**
     * Processor which runs the handlers from top to bottom
     * The materializer is necessary to discard the underlying response entity (onError)
     * See this: https://doc.akka.io/docs/akka-http/current/scala/http/implications-of-streaming-http-entity.html
     */
-  def process(response: HttpResponse)(implicit materializer: Materializer): ResponseEntity
+  def process(response: HttpResponse)(
+        implicit actorSyst: ActorSystem): ResponseEntity
 }
 
 object ResponseProcessor {
@@ -59,11 +60,11 @@ object ResponseProcessor {
     */
   implicit object DefaultProcessor extends ResponseProcessor {
 
-    override def success(implicit materializer: Materializer): ResponseHandler = {
+    override def success(implicit as: ActorSystem): ResponseHandler = {
       case HttpResponse(_: StatusCodes.Success, _, entity, _) => entity
     }
 
-    override def clientError(implicit materializer: Materializer): ResponseHandler = {
+    override def clientError(implicit as:ActorSystem): ResponseHandler = {
       case r @ HttpResponse(status: StatusCodes.ClientError, _, entity, _) =>
         r.discardEntityBytes()
         throw ClientErrorRestException(
@@ -71,7 +72,7 @@ object ResponseProcessor {
         )
     }
 
-    override def error(implicit materializer: Materializer): ResponseHandler = {
+    override def error(implicit as: ActorSystem): ResponseHandler = {
       case r @ HttpResponse(status: StatusCodes.ServerError, _, entity, _) =>
         r.discardEntityBytes()
         throw ServerErrorRestException(
@@ -79,7 +80,7 @@ object ResponseProcessor {
         )
     }
 
-    override def informational(implicit materializer: Materializer): ResponseHandler = {
+    override def informational(implicit as: ActorSystem): ResponseHandler = {
       case r @ HttpResponse(status: StatusCodes.Informational, _, entity, _) =>
         r.discardEntityBytes()
         throw InformationalErrorRestException(
@@ -90,7 +91,7 @@ object ResponseProcessor {
     /**
       * Redirect handler (e.g. Redirect...) override this when you want to match your own redirection logic
       */
-    override def redirect(implicit materializer: Materializer): ResponseHandler = {
+    override def redirect(implicit as: ActorSystem): ResponseHandler = {
       case r @ HttpResponse(status: StatusCodes.Redirection, _, entity, _) =>
         r.discardEntityBytes()
         throw RedirectionErrorRestException(
@@ -101,7 +102,7 @@ object ResponseProcessor {
     /**
       * Custom status code handler override this when you want to match your own custom codes
       */
-    override def default(implicit materializer: Materializer): ResponseHandler = {
+    override def default(implicit as: ActorSystem): ResponseHandler = {
       case r @ HttpResponse(status, _, entity, _) =>
         r.discardEntityBytes()
         throw CustomRestException(
@@ -110,7 +111,7 @@ object ResponseProcessor {
     }
 
     override def process(response: HttpResponse)(
-        implicit materializer: Materializer): ResponseEntity =
+        implicit actorSyst: ActorSystem): ResponseEntity =
       (success orElse clientError orElse error orElse informational orElse redirect orElse default)(
         response)
   }

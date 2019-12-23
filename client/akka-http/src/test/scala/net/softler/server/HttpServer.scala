@@ -8,7 +8,6 @@ import akka.http.scaladsl.model.TransferEncodings.{deflate, gzip}
 import akka.http.scaladsl.model.headers.`Access-Control-Allow-Methods`
 import akka.http.scaladsl.model.{ContentTypes, HttpResponse, StatusCodes}
 import akka.http.scaladsl.server.Route
-import akka.stream.ActorMaterializer
 import net.softler.marshalling.Models.User
 import net.softler.marshalling.{JsonSupport, Models}
 
@@ -21,8 +20,6 @@ trait HttpServer extends JsonSupport with Models {
   import akka.http.scaladsl.server.Directives._
 
   implicit val system: ActorSystem = ActorSystem("test-actor-system")
-
-  implicit val materializer: ActorMaterializer = ActorMaterializer()
 
   implicit val executionContext: ExecutionContextExecutor = system.dispatcher
 

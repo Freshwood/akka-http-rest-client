@@ -1,5 +1,4 @@
 import akka.actor.ActorSystem
-import akka.stream.{ActorMaterializer, Materializer}
 import net.softler.client.{ClientRequest, ClientResponse, RequestState}
 
 import scala.concurrent.{ExecutionContext, Future}
@@ -10,7 +9,6 @@ import scala.concurrent.{ExecutionContext, Future}
   */
 sealed trait AkkaHttpContext {
   implicit lazy val system: ActorSystem = ActorSystem()
-  implicit lazy val materializer: Materializer = ActorMaterializer()
   implicit lazy val executionContext: ExecutionContext = system.dispatcher
 }
 
@@ -23,8 +21,6 @@ sealed trait AkkaHttpResponse {
 
   implicit def system: ActorSystem
 
-  implicit def materializer: Materializer
-
   implicit def executionContext: ExecutionContext
 
   def request: ClientRequest[RequestState.Idempotent]
@@ -34,9 +30,9 @@ sealed trait AkkaHttpResponse {
 
 sealed trait AkkaHttpResponseHandler {
 
-  implicit def executionContext: ExecutionContext
+  implicit def system: ActorSystem
 
-  implicit def materializer: Materializer
+  implicit def executionContext: ExecutionContext
 
   def response: Future[ClientResponse]
 
