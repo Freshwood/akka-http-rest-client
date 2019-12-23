@@ -1,10 +1,10 @@
 package net.softler.client
 
+import akka.actor.ActorSystem
 import akka.http.scaladsl.coding._
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.model.headers.HttpEncodings
 import akka.http.scaladsl.unmarshalling.{Unmarshal, Unmarshaller}
-import akka.stream.Materializer
 import net.softler.processor.ResponseProcessor
 
 import scala.collection.immutable
@@ -43,7 +43,7 @@ case class ClientResponse(response: HttpResponse) { self =>
     * If none is specified the default one will be used
     * @return A response entity which can be un marshaled
     */
-  def process(implicit processor: ResponseProcessor, materializer: Materializer): ResponseEntity =
+  def process(implicit processor: ResponseProcessor, ac: ActorSystem): ResponseEntity =
     processor.process(response)
 
   /**
@@ -52,8 +52,8 @@ case class ClientResponse(response: HttpResponse) { self =>
     * @return The given type as [[A]]
     */
   def as[A](implicit processor: ResponseProcessor,
-            um: Unmarshaller[ResponseEntity, A],
-            materializer: Materializer): Future[A] =
+           actorSystem:ActorSystem, 
+            um: Unmarshaller[ResponseEntity, A]): Future[A] =
     Unmarshal(processor.process(response)).to[A]
 }
 
@@ -74,8 +74,8 @@ object ClientResponse {
     * With the response entity as result the given un marshaller will be applied
     */
   def as[A](response: Future[HttpResponse])(implicit processor: ResponseProcessor,
+                                            as: ActorSystem, 
                                             um: Unmarshaller[ResponseEntity, A],
-                                            materializer: Materializer,
                                             executionContext: ExecutionContext): Future[A] =
     response flatMap { rawResult =>
       Unmarshal(processor.process(rawResult)).to[A]
